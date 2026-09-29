@@ -4,6 +4,7 @@
 import streamlit as st
 import pandas as pd
 from snowflake.snowpark.context import get_active_session
+session = get_active_session()
 # ---------------------------------------------------------
 # Page configuration
 # This must appear before other Streamlit display commands.
