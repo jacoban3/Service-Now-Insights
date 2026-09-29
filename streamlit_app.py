@@ -1,42 +1,39 @@
-# Import python packages
+# ---------------------------------------------------------
+# Imports
+# ---------------------------------------------------------
 import streamlit as st
-#from snowflake.snowpark.context import get_active_session
-import requests
-#from snowflake.snowpark.functions import col
-
-import datetime
-import random
-
-import altair as alt
-import numpy as np
 import pandas as pd
-# Write directly to the app
+from snowflake.snowpark.context import get_active_session
+# ---------------------------------------------------------
+# Page configuration
+# This must appear before other Streamlit display commands.
+# ---------------------------------------------------------
+
+st.set_page_config(
+    page_title="Search ServiceNow Tickets",
+    page_icon="🔎",
+    layout="wide"
+)
+# ---------------------------------------------------------
+# Snowflake session
+# ---------------------------------------------------------
 session = get_active_session()
-# Show app title and description.
-st.set_page_config(page_title="Search Service Now Tickets", page_icon="🔎")
-st.title("🔎 Search Service Now Tickets")
+# ---------------------------------------------------------
+# Page title and description
+# ---------------------------------------------------------
+st.title("🔎 Search ServiceNow Tickets")
+
 st.write(
     """
-    This app is linked to Service Now data in Snowflake. The report is designed to provide rapid visibility into support incidents, helping engineers and support teams identify, 
-    investigate, and resolve tickets more efficiently. The goal is to reduce the time spent searching for information and increase the time spent resolving issues, 
-    ultimately improving operational efficiency and support outcomes.
+    This app is linked to ServiceNow data in Snowflake. The report is
+    designed to provide rapid visibility into support incidents, helping
+    engineers and support teams identify, investigate, and resolve tickets
+    more efficiently.
     """
 )
-
-# Create a random Pandas dataframe with existing tickets.
-if "df" not in st.session_state:
-
-    # Set seed for reproducibility.
-    np.random.seed(42)
-
-import streamlit as st
-from snowflake.snowpark.context import get_active_session
-
-session = get_active_session()
-
-st.header("ServiceNow Incidents")
-
-# Pull the incident data from the Snowflake view.
+# ---------------------------------------------------------
+# Retrieve incidents from the Snowflake view
+# ---------------------------------------------------------
 incident_query = """
 SELECT
     INCIDENT_NUMBER,
@@ -52,9 +49,23 @@ FROM SNOWFLAKE_LEARNING_DB.CORE.VW_ODS_SERVICENOW_INCIDENTS
 ORDER BY OPENED_DATE DESC
 """
 
-incident_df = session.sql(incident_query).to_pandas()
+try:
+    incident_df = session.sql(incident_query).to_pandas()
 
-# Rename the columns for display.
+except Exception as error:
+    st.error("The incident data could not be retrieved from Snowflake.")
+    st.exception(error)
+    st.stop()
+# ---------------------------------------------------------
+# Handle an empty result
+# ---------------------------------------------------------
+
+if incident_df.empty:
+    st.warning("No ServiceNow incidents were returned by the view.")
+    st.stop()
+# ---------------------------------------------------------
+# Rename columns for display
+# ---------------------------------------------------------
 incident_df = incident_df.rename(
     columns={
         "OPENED_DATE": "Opened Date",
@@ -68,10 +79,14 @@ incident_df = incident_df.rename(
         "INCIDENT_URL": "Incident Link"
     }
 )
+# ---------------------------------------------------------
+# First dataframe: incident summary
+# ---------------------------------------------------------
+st.header("ServiceNow Incidents")
 
-# -----------------------------
-# First dataframe: incident list
-# -----------------------------
+st.write(
+    "Select a row to view the incident description and work notes."
+)
 
 incident_list_df = incident_df[
     [
@@ -85,12 +100,11 @@ incident_list_df = incident_df[
     ]
 ].copy()
 
-st.write("Select an incident to view its description and work notes.")
 
 incident_selection = st.dataframe(
     incident_list_df,
     hide_index=True,
-    width="stretch",
+    use_container_width=True,
     height=400,
     on_select="rerun",
     selection_mode="single-row",
@@ -116,6 +130,16 @@ incident_selection = st.dataframe(
         "Inc Number": st.column_config.TextColumn(
             "Inc Number"
         ),
+        "State": st.column_config.TextColumn(
+            "State"
+        ),
+        "Assigned To": st.column_config.TextColumn(
+            "Assigned To"
+        ),
+        "Short Description": st.column_config.TextColumn(
+            "Short Description",
+            width="large"
+        ),
         "Incident Link": st.column_config.LinkColumn(
             "Open Incident",
             display_text="Open in ServiceNow"
@@ -123,9 +147,10 @@ incident_selection = st.dataframe(
     }
 )
 
-# -----------------------------
-# Second dataframe: selected row
-# -----------------------------
+
+# ---------------------------------------------------------
+# Second dataframe: selected incident details
+# ---------------------------------------------------------
 
 selected_rows = incident_selection.selection.rows
 
@@ -137,9 +162,8 @@ if selected_rows:
         selected_index
     ]["Inc Number"]
 
-    incident_detail_df = incident_df[
-        incident_df["Inc Number"] == selected_incident_number
-    ][
+    incident_detail_df = incident_df.loc[
+        incident_df["Inc Number"] == selected_incident_number,
         [
             "Opened Date",
             "Inc Number",
@@ -149,12 +173,14 @@ if selected_rows:
         ]
     ].copy()
 
-    st.subheader(f"Incident Details: {selected_incident_number}")
+    st.subheader(
+        f"Incident Details: {selected_incident_number}"
+    )
 
     st.dataframe(
         incident_detail_df,
         hide_index=True,
-        width="stretch",
+        use_container_width=True,
         column_order=[
             "Opened Date",
             "Inc Number",
@@ -186,4 +212,6 @@ if selected_rows:
     )
 
 else:
-    st.info("Select a row above to view the incident details.")
+    st.info(
+        "Select an incident in the table above to display its details."
+    )
