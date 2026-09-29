@@ -1,19 +1,25 @@
+# Import python packages
+import streamlit as st
+#from snowflake.snowpark.context import get_active_session
+import requests
+from snowflake.snowpark.functions import col
+
 import datetime
 import random
 
 import altair as alt
 import numpy as np
 import pandas as pd
-import streamlit as st
+# Write directly to the app
 
 # Show app title and description.
-st.set_page_config(page_title="Support tickets", page_icon="🎫")
+st.set_page_config(page_title="Search Service Now Tickets", page_icon="🎫")
 st.title("🎫 Support tickets")
 st.write(
     """
-    This app shows how you can build an internal tool in Streamlit. Here, we are 
-    implementing a support ticket workflow. The user can create a ticket, edit 
-    existing tickets, and view some statistics.
+    This app is linked to Service Now data in Snowflake. The report is designed to provide rapid visibility into support incidents, helping engineers and support teams identify, 
+    investigate, and resolve tickets more efficiently. The goal is to reduce the time spent searching for information and increase the time spent resolving issues, 
+    ultimately improving operational efficiency and support outcomes.
     """
 )
 
@@ -102,7 +108,7 @@ st.header("Existing tickets")
 st.write(f"Number of tickets: `{len(st.session_state.df)}`")
 
 st.info(
-    "You can edit the tickets by double clicking on a cell. Note how the plots below "
+    "You can link the tickets by double clicking on a cell. Note how the plots below "
     "update automatically! You can also sort the table by clicking on the column headers.",
     icon="✍️",
 )
