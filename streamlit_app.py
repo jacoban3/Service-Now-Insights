@@ -13,7 +13,7 @@ import pandas as pd
 # Write directly to the app
 
 # Show app title and description.
-st.set_page_config(page_title="Search Service Now Tickets", page_icon="🎫")
+st.set_page_config(page_title="Search Service Now Tickets", page_icon="🔎")
 st.title("🔎 Search Service Now Tickets")
 st.write(
     """
