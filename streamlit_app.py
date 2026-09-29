@@ -11,7 +11,6 @@ st.set_page_config(
 conn = st.connection("snowflake")
 session = conn.session()
 
-st.title("🔎 Search ServiceNow Tickets")
 # ---------------------------------------------------------
 # Page title and description
 # ---------------------------------------------------------
