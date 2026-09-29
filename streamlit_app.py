@@ -1,24 +1,17 @@
-# ---------------------------------------------------------
-# Imports
-# ---------------------------------------------------------
 import streamlit as st
 import pandas as pd
-conn = st.connection("snowflake")
-session = conn.session()
-# ---------------------------------------------------------
-# Page configuration
-# This must appear before other Streamlit display commands.
-# ---------------------------------------------------------
 
 st.set_page_config(
     page_title="Search ServiceNow Tickets",
     page_icon="🔎",
     layout="wide"
 )
-# ---------------------------------------------------------
-# Snowflake session
-# ---------------------------------------------------------
-session = get_active_session()
+
+# Connect to Snowflake
+conn = st.connection("snowflake")
+session = conn.session()
+
+st.title("🔎 Search ServiceNow Tickets")
 # ---------------------------------------------------------
 # Page title and description
 # ---------------------------------------------------------
