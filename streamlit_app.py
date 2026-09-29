@@ -3,8 +3,8 @@
 # ---------------------------------------------------------
 import streamlit as st
 import pandas as pd
-from snowflake.snowpark.context import get_active_session
-session = get_active_session()
+conn = st.connection("snowflake")
+session = conn.session()
 # ---------------------------------------------------------
 # Page configuration
 # This must appear before other Streamlit display commands.
