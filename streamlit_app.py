@@ -14,7 +14,7 @@ import pandas as pd
 
 # Show app title and description.
 st.set_page_config(page_title="Search Service Now Tickets", page_icon="🎫")
-st.title("🎫 Support tickets")
+st.title("🎫 Search Service Now Tickets")
 st.write(
     """
     This app is linked to Service Now data in Snowflake. The report is designed to provide rapid visibility into support incidents, helping engineers and support teams identify, 
