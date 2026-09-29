@@ -2,7 +2,7 @@
 import streamlit as st
 #from snowflake.snowpark.context import get_active_session
 import requests
-from snowflake.snowpark.functions import col
+#from snowflake.snowpark.functions import col
 
 import datetime
 import random
